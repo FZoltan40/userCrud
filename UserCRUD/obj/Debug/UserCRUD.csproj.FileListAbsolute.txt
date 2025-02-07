@@ -84,3 +84,4 @@ C:\Users\FarkasZ\Desktop\UserCrud-main\UserCRUD\obj\Debug\UserCRUD.csproj.CoreCo
 C:\Users\FarkasZ\Desktop\UserCrud-main\UserCRUD\obj\Debug\UserCRUD.csproj.Up2Date
 C:\Users\FarkasZ\Desktop\UserCrud-main\UserCRUD\obj\Debug\UserCRUD.exe
 C:\Users\FarkasZ\Desktop\UserCrud-main\UserCRUD\obj\Debug\UserCRUD.pdb
+C:\Users\FarkasZ\Desktop\UserCrud-main\UserCRUD\obj\Debug\UserCRUD.Form2.resources

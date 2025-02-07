@@ -1,6 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Windows.Forms;
 
 namespace UserCRUD
@@ -12,7 +14,7 @@ namespace UserCRUD
         {
             InitializeComponent();
             ControlBox = false;
-            radioButton1.Checked = true;
+            radioButton3.Checked = true;
             hideReg();
             feltolt();
         }
@@ -20,20 +22,36 @@ namespace UserCRUD
         private static int userId = 0;
         private void button1_Click(object sender, System.EventArgs e)
         {
-            string[] darabol = textBox1.Text.Split(' ');
+            try
+            {
+                string[] darabol = textBox1.Text.Split(' ');
 
-            if (beleptet(darabol[1], darabol[0], textBox2.Text) == true)
-            {
-                MessageBox.Show("Regisztrált tag.");
+                if (beleptet(darabol[1], darabol[0], textBox2.Text) == true)
+                {
+                    MessageBox.Show("Regisztrált tag.");
+                    Form2 form2 = new Form2();
+                    form2.Show();
+                    form2.Controls.Add(this.listBox1);
+                    this.Hide();
+                   
+                    
+                }
+                else if(radioButton3.Checked)
+                {
+                    Exception ex = new Exception();
+                    MessageBox.Show("Nem regisztrált tag."+"\n"+ex.Message);
+                    showReg();
+                    string[] darabol2 = textBox1.Text.Split(' ');
+                    textBox3.Text = darabol2[1];
+                    textBox4.Text = darabol2[0];
+                }
             }
-            else
-            {
-                MessageBox.Show("Nem regisztrált tag.");
-                showReg();
-                string[] darabol2 = textBox1.Text.Split(' ');
-                textBox3.Text = darabol2[1];
-                textBox4.Text = darabol2[0];
+            catch(Exception ex)
+            { 
+                MessageBox.Show(ex.Message);
             }
+
+          
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -79,13 +97,22 @@ namespace UserCRUD
 
         private bool beleptet(string firstName, string lastName, string pass)
         {
-            conn.Connection.Open();
-            string sql = $"SELECT `Id` FROM `data` WHERE `FirstName`= '{firstName}' and `LastName`= '{lastName}' and `Password`= '{pass}'";
-            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
-            MySqlDataReader dr = cmd.ExecuteReader();
-            bool van = dr.Read();
-            conn.Connection.Close();
-            return van;
+            try
+            {
+                conn.Connection.Open();
+                string sql = $"SELECT `Id` FROM `data` WHERE `FirstName`= '{firstName}' and `LastName`= '{lastName}' and `Password`= '{pass}'";
+                MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+                MySqlDataReader dr = cmd.ExecuteReader();
+                bool van = dr.Read();
+                conn.Connection.Close();
+                return van;
+            }
+            catch ( Exception ex)
+            {
+
+                return false;            
+            }
+          
         }
 
         private string regisztral(string firstName, string lastName, string pass)
@@ -123,15 +150,24 @@ namespace UserCRUD
 
         private void feltolt()
         {
-            conn.Connection.Open();
-            string sql = $"SELECT `Id`,`LastName`,`FirstName`,`CreatedTime`,`UpdatedTime` FROM `data`; ";
-            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
-            MySqlDataReader dr = cmd.ExecuteReader();
-            while (dr.Read()) 
-            { 
-                listBox1.Items.Add($"{dr.GetInt32(0)}. {dr.GetString(1)} {dr.GetString(2)}  {dr.GetDateTime(3).ToString("yyyy-MM-dd")} {dr.GetDateTime(4).ToString("yyy-MM-dd")}");
+            try
+            {
+                conn.Connection.Open();
+                string sql = $"SELECT `Id`,`LastName`,`FirstName`,`CreatedTime`,`UpdatedTime` FROM `data`; ";
+                MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+                MySqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    listBox1.Items.Add($"{dr.GetInt32(0)}. {dr.GetString(1)} {dr.GetString(2)}  {dr.GetDateTime(3).ToString("yyyy-MM-dd")} {dr.GetDateTime(4).ToString("yyy-MM-dd")}");
+                }
+                conn.Connection.Close();
             }
-            conn.Connection.Close();
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+         
         }
         private void hideReg()
         {
