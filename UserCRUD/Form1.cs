@@ -7,21 +7,17 @@ namespace UserCRUD
 {
     public partial class Form1 : Form
     {
+        private Connect conn = new Connect();
         public Form1()
         {
             InitializeComponent();
             ControlBox = false;
             radioButton1.Checked = true;
-
             hideReg();
             feltolt();
-          
-          
         }
 
-        private Connect conn = new Connect();
-        public static int userId = 0;
-
+        private static int userId = 0;
         private void button1_Click(object sender, System.EventArgs e)
         {
             string[] darabol = textBox1.Text.Split(' ');
@@ -44,8 +40,7 @@ namespace UserCRUD
         {
             if(radioButton1.Checked == true && textBox5.Text == textBox6.Text)
             {
-                frissit(userId,textBox3.Text,textBox4.Text,textBox5.Text);
-                MessageBox.Show("Sikeres frissítés");
+                MessageBox.Show(frissit(userId, textBox3.Text, textBox4.Text, textBox5.Text));
                 listBox1.Items.Clear();
                 feltolt();
                 hideReg();
@@ -57,105 +52,87 @@ namespace UserCRUD
             }
           
         }
-
-        private bool beleptet(string firstName, string lastName, string pass)
+        private void button3_Click(object sender, EventArgs e)
         {
-            conn.Connection.Open();
-
-            string sql = $"SELECT `Id` FROM `data` WHERE `FirstName`= '{firstName}' and `LastName`= '{lastName}' and `Password`= '{pass}'";
-
-            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
-            MySqlDataReader dr = cmd.ExecuteReader();
-
-            bool van = dr.Read();
-
-            conn.Connection.Close();
-
-            return van;
-        }
-
-        private string regisztral(string firstName, string lastName, string pass)
-        {
-            conn.Connection.Open();
-
-            string sql = $"INSERT INTO `data`(`FirstName`, `LastName`, `Password`, `CreatedTime`, `UpdatedTime`) VALUES ('{firstName}','{lastName}','{pass}','{DateTime.Now.ToString("yyyy-MM-dd")}','{DateTime.Now.ToString("yyyy-MM-dd")}')";
-
-            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
-
-            var result = cmd.ExecuteNonQuery();
-
-            conn.Connection.Close();
-
-            listBox1.Items.Clear();
-            feltolt();
-
-            return result > 0 ? "Sikeres regisztráció" : "Sikertelen Regisztráció.";
-        }
-
-        private void feltolt()
-        {
-            conn.Connection.Open();
-
-            string sql = $"SELECT `Id`,`LastName`,`FirstName`,`CreatedTime`,`UpdatedTime` FROM `data`; ";
-
-            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
-            MySqlDataReader dr = cmd.ExecuteReader();
-
-            while (dr.Read()) 
-            { 
-                listBox1.Items.Add($"{dr.GetInt32(0)}. {dr.GetString(1)} {dr.GetString(2)}  {dr.GetDateTime(3).ToString("yyyy-MM-dd")} {dr.GetDateTime(4).ToString("yyy-MM-dd")}");
-            }
-
-            conn.Connection.Close();
+            this.Close();
         }
 
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
-            if(radioButton2.Checked == true)
+            string[] getId = listBox1.SelectedItem.ToString().Split('.');
+            userId = int.Parse(getId[0].TrimEnd());
+
+            if (radioButton2.Checked == true)
             {
-                string id = listBox1.SelectedItem.ToString();
-                string[] idDarabol = id.Split('.');
-
-                conn.Connection.Open();
-
-                string sql = $"DELETE FROM `data` WHERE `Id`= '{idDarabol[0]}'";
-
-                MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
-
-                var result = cmd.ExecuteNonQuery();
-
-                conn.Connection.Close();
-
+                MessageBox.Show(torol());
                 listBox1.Items.Clear();
                 feltolt();
             }
             else
             {
                 showReg();
-                string[] darabol = listBox1.SelectedItem.ToString().Split(' ');
-                textBox4.Text = darabol[1];
-                textBox3.Text = darabol[2];
-
-                string[] darabol2 = listBox1.SelectedItem.ToString().Split('.');
-                userId = int.Parse(darabol2[0].TrimEnd());
+                string[] darabolNev = listBox1.SelectedItem.ToString().Split(' ');
+                textBox4.Text = darabolNev[1];
+                textBox3.Text = darabolNev[2];
             }
-          
-
         }
 
-        private void frissit(int Id, string FirstName, string LastName, string Password)
+        private bool beleptet(string firstName, string lastName, string pass)
         {
             conn.Connection.Open();
-
-            string sql = $"UPDATE `data` SET `FirstName`='{FirstName}',`LastName`='{LastName}',`Password`='{Password}' WHERE `Id`= {Id}";
-
+            string sql = $"SELECT `Id` FROM `data` WHERE `FirstName`= '{firstName}' and `LastName`= '{lastName}' and `Password`= '{pass}'";
             MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
-
-            var result = cmd.ExecuteNonQuery();
-
+            MySqlDataReader dr = cmd.ExecuteReader();
+            bool van = dr.Read();
             conn.Connection.Close();
+            return van;
         }
 
+        private string regisztral(string firstName, string lastName, string pass)
+        {
+            conn.Connection.Open();
+            string sql = $"INSERT INTO `data`(`FirstName`, `LastName`, `Password`, `CreatedTime`, `UpdatedTime`) VALUES ('{firstName}','{lastName}','{pass}','{DateTime.Now.ToString("yyyy-MM-dd")}','{DateTime.Now.ToString("yyyy-MM-dd")}')";
+            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+            var result = cmd.ExecuteNonQuery();
+            conn.Connection.Close();
+            listBox1.Items.Clear();
+            feltolt();
+            return result > 0 ? "Sikeres regisztráció" : "Sikertelen Regisztráció.";
+        }
+
+        private string torol()
+        {
+            conn.Connection.Open();
+            string sql = $"DELETE FROM `data` WHERE `Id`= '{userId}'";
+            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+            var result = cmd.ExecuteNonQuery();
+            conn.Connection.Close();
+            return result > 0 ? "Sikeres törlés" : "Sikertelen törlés.";
+        }
+
+
+        private string frissit(int Id, string FirstName, string LastName, string Password)
+        {
+            conn.Connection.Open();
+            string sql = $"UPDATE `data` SET `FirstName`='{FirstName}',`LastName`='{LastName}',`Password`='{Password}' WHERE `Id`= {Id}";
+            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+            var result = cmd.ExecuteNonQuery();
+            conn.Connection.Close();
+            return result > 0 ? "Sikeres frissítés" : "Sikertelen frissítés.";
+        }
+
+        private void feltolt()
+        {
+            conn.Connection.Open();
+            string sql = $"SELECT `Id`,`LastName`,`FirstName`,`CreatedTime`,`UpdatedTime` FROM `data`; ";
+            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+            MySqlDataReader dr = cmd.ExecuteReader();
+            while (dr.Read()) 
+            { 
+                listBox1.Items.Add($"{dr.GetInt32(0)}. {dr.GetString(1)} {dr.GetString(2)}  {dr.GetDateTime(3).ToString("yyyy-MM-dd")} {dr.GetDateTime(4).ToString("yyy-MM-dd")}");
+            }
+            conn.Connection.Close();
+        }
         private void hideReg()
         {
             label3.Visible = label4.Visible = label5.Visible = label6.Visible = false;
@@ -170,9 +147,6 @@ namespace UserCRUD
             button2.Visible = true;
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+       
     }
 }
